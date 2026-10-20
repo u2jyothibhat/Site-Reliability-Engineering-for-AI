@@ -1,0 +1,6 @@
+AppDependencies
+| where TimeGenerated > ago(1h)
+| where AppRoleName == "card-assistant" and Type == "GenAI"
+| extend served_model = tostring(Properties["gen_ai.response.model"])
+| summarize calls = count(), errors = countif(Success == false) by served_model
+| order by calls desc

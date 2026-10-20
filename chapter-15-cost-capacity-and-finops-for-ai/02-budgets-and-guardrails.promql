@@ -1,0 +1,10 @@
+sum by (service) (increase(genai_cost_usd_total[1h]))
+>
+2 * (
+  (
+    sum by (service) (increase(genai_cost_usd_total[1h] offset 1w))
+  + sum by (service) (increase(genai_cost_usd_total[1h] offset 2w))
+  + sum by (service) (increase(genai_cost_usd_total[1h] offset 3w))
+  + sum by (service) (increase(genai_cost_usd_total[1h] offset 4w))
+  ) / 4
+)

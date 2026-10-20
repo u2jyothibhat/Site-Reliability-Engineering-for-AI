@@ -1,0 +1,16 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: llm-assistant-scaler
+spec:
+  scaleTargetRef:
+    name: llm-assistant
+  minReplicaCount: 2
+  maxReplicaCount: 12
+  cooldownPeriod: 600
+  triggers:
+    - type: prometheus
+      metadata:
+        serverAddress: http://prometheus.monitoring:9090
+        query: sum(vllm:num_requests_waiting{app="llm-assistant"})
+        threshold: "8"

@@ -1,0 +1,13 @@
+# gateway fault injection rule (applied via the gateway's admin API)
+fault_injection:
+  enabled: true
+  expires_at: "2026-10-28T10:45:00Z"   # automatic cleanup
+  rules:
+    - match:
+        route: assistant-default
+        target_provider: azure-openai
+      percentage: 5
+      fault:
+        type: http_error
+        status: 503
+        body: '{"error":"injected_fault"}'

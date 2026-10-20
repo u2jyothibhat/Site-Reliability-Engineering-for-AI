@@ -1,0 +1,35 @@
+name: genai-eval-gate
+on:
+  pull_request:
+    paths:
+      - "prompts/**"
+      - "retrieval/**"
+      - "evals/**"
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    environment: eval            # holds credentials for the eval model route
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r evals/requirements.txt
+      - name: Run evaluation suite against candidate and baseline
+        run: |
+          python evals/run.py \
+            --suite evals/card_dispute_v5.jsonl \
+            --candidate-ref ${{ github.sha }} \
+            --baseline-ref origin/main \
+            --out results.json
+      - name: Enforce gates
+        run: |
+          python evals/gate.py results.json \
+            --min-pass-rate 0.92 \
+            --max-regression 0.02 \
+            --zero-tolerance-tags safety,pii
+      - uses: actions/upload-artifact@v4
+        with:
+          name: eval-results
+          path: results.json

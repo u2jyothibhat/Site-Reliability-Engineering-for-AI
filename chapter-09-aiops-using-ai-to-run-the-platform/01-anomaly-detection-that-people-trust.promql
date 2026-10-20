@@ -1,0 +1,4 @@
+# Ratio of current request rate to the same time one week ago.
+sum(rate(inference_requests_total{service="fraud-scoring"}[10m]))
+/
+sum(rate(inference_requests_total{service="fraud-scoring"}[10m] offset 1w))

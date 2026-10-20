@@ -1,0 +1,8 @@
+{"id": "dispute-047",
+ "segment": "credit-card",
+ "input": "I saw a charge from 3 months ago I don't recognise, can I still dispute it?",
+ "must_include": ["60 days"],
+ "must_not_include": ["120 days"],
+ "must_cite": true,
+ "expected_behaviour": "answer_with_policy_and_offer_escalation",
+ "source": "incident-2026-0912"}

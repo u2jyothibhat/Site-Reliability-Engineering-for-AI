@@ -1,0 +1,9 @@
+# prompts/card_dispute_assistant/manifest.yaml
+name: card_dispute_assistant
+version: 2026.10.3
+model_route: assistant-default
+max_output_tokens: 600
+temperature: 0.2
+template: system.md
+eval_suite: evals/card_dispute_v5.jsonl
+owner: cards-digital-team

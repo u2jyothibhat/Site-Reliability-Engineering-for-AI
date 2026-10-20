@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-assistant
+  labels: { app: llm-assistant }
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: llm-assistant }
+  template:
+    metadata:
+      labels: { app: llm-assistant }
+    spec:
+      tolerations:
+        - key: workload
+          operator: Equal
+          value: inference
+          effect: NoSchedule
+      nodeSelector:
+        workload: inference
+      containers:
+        - name: vllm
+          image: registry.internal/ai/vllm-openai:pinned-2026-09
+          args:
+            - "--model=/models/assistant-8b-v4"
+            - "--max-model-len=16384"
+            - "--gpu-memory-utilization=0.90"
+            - "--max-num-seqs=64"
+          ports:
+            - containerPort: 8000
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+              memory: 48Gi
+            requests:
+              cpu: "6"
+              memory: 40Gi
+          volumeMounts:
+            - { name: model-cache, mountPath: /models, readOnly: true }
+          startupProbe:
+            httpGet: { path: /health, port: 8000 }
+            periodSeconds: 10
+            failureThreshold: 60      # allow up to 10 minutes to load weights
+          readinessProbe:
+            httpGet: { path: /health, port: 8000 }
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: { path: /health, port: 8000 }
+            periodSeconds: 20
+            failureThreshold: 3
+      volumes:
+        - name: model-cache
+          persistentVolumeClaim:
+            claimName: model-weights-assistant-8b-v4

@@ -1,0 +1,41 @@
+receivers:
+  otlp:
+    protocols:
+      grpc: { endpoint: 0.0.0.0:4317 }
+      http: { endpoint: 0.0.0.0:4318 }
+
+processors:
+  memory_limiter:
+    check_interval: 2s
+    limit_percentage: 80
+    spike_limit_percentage: 20
+  attributes/redact:
+    actions:
+      - key: gen_ai.prompt
+        action: delete
+      - key: gen_ai.completion
+        action: delete
+      - key: enduser.id
+        action: hash
+  batch:
+    timeout: 5s
+    send_batch_size: 2048
+
+exporters:
+  otlphttp/central:
+    endpoint: https://otel-gateway.observability.internal:4318
+  # Choose the exporter for your cloud, for example:
+  #   awsxray / awsemf on AWS
+  #   azuremonitor on Azure
+  #   googlecloud on Google Cloud
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, attributes/redact, batch]
+      exporters: [otlphttp/central]
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlphttp/central]

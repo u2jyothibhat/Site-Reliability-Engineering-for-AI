@@ -1,0 +1,11 @@
+POST /assistant/ask                          1,840 ms
+├── guardrail.input_check                       45 ms
+├── retrieval.embed_query                       38 ms
+├── retrieval.vector_search                     62 ms
+├── retrieval.rerank                           110 ms
+├── prompt.build                                 3 ms
+├── chat primary-large                       1,480 ms
+│     gen_ai.request.model = primary-large
+│     gen_ai.usage.input_tokens = 3,912
+│     gen_ai.usage.output_tokens = 284
+└── guardrail.output_check                      70 ms

@@ -1,0 +1,11 @@
+# Average GPU utilisation per node pool
+avg by (nodepool) (DCGM_FI_DEV_GPU_UTIL)
+
+# Framebuffer memory in use, as a share of total
+sum by (Hostname, gpu) (DCGM_FI_DEV_FB_USED)
+/
+(sum by (Hostname, gpu) (DCGM_FI_DEV_FB_USED)
+ + sum by (Hostname, gpu) (DCGM_FI_DEV_FB_FREE))
+
+# Any uncorrectable memory errors (XID / ECC) are worth a ticket at least
+increase(DCGM_FI_DEV_XID_ERRORS[15m]) > 0

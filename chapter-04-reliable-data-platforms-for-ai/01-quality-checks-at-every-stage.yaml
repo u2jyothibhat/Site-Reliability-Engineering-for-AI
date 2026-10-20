@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: card_velocity_features
+    description: "Per-card transaction velocity features for fraud scoring"
+    columns:
+      - name: card_id
+        tests:
+          - not_null
+          - unique
+      - name: txn_count_1h
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 500
+      - name: txn_amount_24h
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: feature_ts
+        tests:
+          - not_null
+          - dbt_utils.recency:
+              datepart: minute
+              field: feature_ts
+              interval: 10

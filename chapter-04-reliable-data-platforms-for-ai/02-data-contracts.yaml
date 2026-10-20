@@ -1,0 +1,23 @@
+contract: payments.card_transactions
+version: 3.1.0
+owner: payments-platform-team
+consumers: [fraud-scoring, aml-monitoring, finance-reporting]
+freshness:
+  max_lag_seconds: 60
+schema:
+  - name: transaction_id
+    type: string
+    required: true
+    unique: true
+  - name: amount_minor
+    type: integer
+    required: true
+    description: "Amount in minor units (paise, cents), including tax"
+  - name: currency
+    type: string
+    allowed: [INR, USD, EUR, GBP, SGD]
+  - name: event_time
+    type: timestamp
+    timezone: UTC
+change_policy:
+  breaking_change_notice_days: 30

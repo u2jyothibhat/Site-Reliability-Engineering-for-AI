@@ -1,0 +1,29 @@
+groups:
+  - name: fraud-scoring-slo
+    rules:
+      - record: slo:fraud_latency_good:ratio_rate5m
+        expr: |
+          sum(rate(inference_latency_seconds_bucket{
+                model="fraud-v7", le="0.05"}[5m]))
+          /
+          sum(rate(inference_latency_seconds_count{
+                model="fraud-v7"}[5m]))
+      - record: slo:fraud_latency_good:ratio_rate1h
+        expr: |
+          sum(rate(inference_latency_seconds_bucket{
+                model="fraud-v7", le="0.05"}[1h]))
+          /
+          sum(rate(inference_latency_seconds_count{
+                model="fraud-v7"}[1h]))
+      - alert: FraudLatencyBudgetFastBurn
+        # SLO is 99%, so the budget is 1%. Burn rate 14.4 => bad ratio > 0.144
+        expr: |
+          (1 - slo:fraud_latency_good:ratio_rate1h) > (14.4 * 0.01)
+          and
+          (1 - slo:fraud_latency_good:ratio_rate5m) > (14.4 * 0.01)
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: "Fraud scoring is burning latency budget fast"
+          runbook: "https://runbooks.internal/fraud-scoring/latency"
